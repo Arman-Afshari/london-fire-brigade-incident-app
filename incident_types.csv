@@ -1,0 +1,15 @@
+IncidentGroup,StopCodeDescription,TypeID
+Special Service,Special Service,1
+False Alarm,False alarm - Good intent,2
+Fire,Secondary Fire,3
+Fire,Primary Fire,4
+False Alarm,AFA,5
+False Alarm,False alarm - Malicious,6
+Special Service,Use of Special Operations Room,7
+Fire,Chimney Fire,8
+Fire,Late Call,9
+,Standby,10
+Special Service,Flood call attended - Batch mobilised,11
+Special Service,Alleged Fire Risk,12
+False Alarm,Alleged Fire Risk,13
+,Alleged Fire Risk,14

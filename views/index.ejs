@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LFB Incident Dashboard</title>
+    
+    <!-- Leaflet CSS (For the Map) -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Simple CSS Styling -->
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; padding: 0; background: #f4f4f9; }
+        header { background: #d62828; color: white; padding: 20px; text-align: center; }
+        .container { max-width: 1200px; margin: 20px auto; padding: 20px; }
+        .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        #map { height: 500px; width: 100%; border-radius: 8px; }
+        h2 { margin-top: 0; color: #333; }
+        .stat-box { font-size: 1.5em; font-weight: bold; color: #d62828; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>🚒 London Fire Brigade Dashboard</h1>
+    </header>
+
+    <div class="container">
+        <!-- Summary Card -->
+        <div class="card">
+            <h2>System Status</h2>
+            <p>Total Incidents in Database: <span class="stat-box"><%= totalIncidents %></span></p>
+            <p>Showing the latest 500 incidents on the map below.</p>
+        </div>
+
+        <!-- The Chart -->
+        <div class="card">
+            <h2>Busiest Fire Stations (2024-2025)</h2>
+            <canvas id="stationChart" style="max-height: 400px;"></canvas>
+        </div>
+
+        <!-- The Map -->
+        <div class="card">
+            <h2>Incident Map (Live Data)</h2>
+            <div id="map"></div>
+        </div>
+    </div>
+
+    <!-- Leaflet JS Library -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <script>
+        // 1. Initialize the Map centered on London
+        const map = L.map('map').setView([51.5074, -0.1278], 10);
+
+        // 2. Add the OpenStreetMap tiles
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+
+        // 3. Fetch Data from our Backend API
+        fetch('/api/map-data')
+            .then(response => response.json())
+            .then(data => {
+                data.forEach(incident => {
+                    // Create a marker for each incident
+                    if(incident.Latitude && incident.Longitude) {
+                        L.marker([incident.Latitude, incident.Longitude])
+                            .addTo(map)
+                            .bindPopup(`
+                                <b>${incident.IncidentGroup}</b><br>
+                                Station: ${incident.StationName}<br>
+                                Date: ${incident.DateOfCall.substring(0,10)}
+                            `);
+                    }
+                });
+            })
+            .catch(err => console.error("Error loading map data:", err));
+        // 4. Fetch Data and Draw the Bar Chart
+        const ctx = document.getElementById('stationChart').getContext('2d');
+        
+        fetch('/api/chart-data')
+            .then(response => response.json())
+            .then(chartData => {
+                new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: chartData.labels,
+                        datasets: [{
+                            label: 'Number of Incidents',
+                            data: chartData.data,
+                            backgroundColor: '#d62828', // Fire Engine Red
+                            borderColor: '#a31616',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        scales: {
+                            y: { beginAtZero: true }
+                        }
+                    }
+                });
+            });
+    </script>
+
+</body>
+</html>
