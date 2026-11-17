@@ -130,14 +130,7 @@ Then run the `LOAD DATA` statement for `incidents.csv` in `sql_script.sql`, foll
 
 ### 3. Configure the database connection
 
-The app reads its database credentials from environment variables, so no password is stored in the code:
-
-| Variable | Default |
-|---|---|
-| `DB_HOST` | `localhost` |
-| `DB_USER` | `root` |
-| `DB_PASSWORD` | *(none)* |
-| `DB_NAME` | `lfb_data` |
+The app reads the database password from an environment variable, so it is never stored in the code. The database name is `lfb_data` and the user is `root` by default. Change these in `app.js` if yours are different.
 
 ### 4. Run the app
 
